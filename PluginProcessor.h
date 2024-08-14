@@ -55,9 +55,6 @@ public:
 
     juce::dsp::IIR::Filter<float> dspFilter;
 private:
-    double cFreq = 100.0f;
-    double qRange = 0.3f;
-    float gainFac = 0.1f;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LearnthingAudioProcessor)
 };
