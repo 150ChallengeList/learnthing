@@ -93,7 +93,16 @@ void LearnthingAudioProcessor::changeProgramName (int index, const juce::String&
 //==============================================================================
 void LearnthingAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    dspFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, cFreq, qRange, gainFac);
+    dspFilter.coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, 100.0f, 0.5f, 3.0f);
+
+
+    // Prepare the filter for processing
+    juce::dsp::ProcessSpec ProcessSpecThing;
+    ProcessSpecThing.sampleRate = sampleRate;
+    ProcessSpecThing.maximumBlockSize = samplesPerBlock;
+    ProcessSpecThing.numChannels = getTotalNumOutputChannels();
+
+    dspFilter.prepare(ProcessSpecThing);
 }
 
 void LearnthingAudioProcessor::releaseResources()
@@ -134,18 +143,15 @@ void LearnthingAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, j
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    juce::dsp::AudioBlock<float> block(buffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+
+    dspFilter.process(context);
 
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
-
-        juce::dsp::AudioBlock<float> block(buffer);
-        juce::dsp::ProcessContextReplacing<float> context(block);
-
-        dspFilter.process(context);
     }
 }
 
