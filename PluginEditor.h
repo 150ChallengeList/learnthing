@@ -14,20 +14,27 @@
 //==============================================================================
 /**
 */
-class LearnthingAudioProcessorEditor  : public juce::AudioProcessorEditor
+class NMAudioProcessorEditor  : public juce::AudioProcessorEditor,
+    public juce::Slider::Listener
 {
 public:
-    LearnthingAudioProcessorEditor (LearnthingAudioProcessor&);
-    ~LearnthingAudioProcessorEditor() override;
+    NMAudioProcessorEditor (NMAudioProcessor&);
+    ~NMAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void sliderValueChanged(juce::Slider* slider) override;
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    LearnthingAudioProcessor& audioProcessor;
+    NMAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LearnthingAudioProcessorEditor)
+    juce::ToggleButton enableFeatureButton;
+    juce::Slider gainSlider;
+    juce::Label gainLabel;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NMAudioProcessorEditor)
 };
