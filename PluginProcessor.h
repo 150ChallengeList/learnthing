@@ -13,12 +13,12 @@
 //==============================================================================
 /**
 */
-class LearnthingAudioProcessor  : public juce::AudioProcessor
+class NMAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    LearnthingAudioProcessor();
-    ~LearnthingAudioProcessor() override;
+    NMAudioProcessor();
+    ~NMAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -53,8 +53,20 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::dsp::IIR::Filter<float> dspFilter;
+    juce::AudioParameterFloat* gainParameter;
+
 private:
+    juce::dsp::Gain<float> outputGain;
+    juce::dsp::Compressor<float> limiter;
+    float dBToLinear(float dB);
+
+    float attackTimeMs = 11.0f;   // Attack time in milliseconds
+    float releaseTimeMs = 50.0f;  // Release time in milliseconds
+    float sustainLevel = 0.29f;   // Sustain level as a percentage (interpreted as 29% gain reduction)
+
+    void applyLimiter(juce::AudioBuffer<float>& buffer);
+    void applyGainToBuffer(juce::AudioBuffer<float>& buffer);
+
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LearnthingAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NMAudioProcessor)
 };
