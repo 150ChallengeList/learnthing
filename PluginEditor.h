@@ -14,27 +14,21 @@
 //==============================================================================
 /**
 */
-class NMAudioProcessorEditor  : public juce::AudioProcessorEditor,
-    public juce::Slider::Listener
+class PhatBassAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    NMAudioProcessorEditor (NMAudioProcessor&);
-    ~NMAudioProcessorEditor() override;
+    PhatBassAudioProcessorEditor (PhatBassAudioProcessor&);
+    ~PhatBassAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void sliderValueChanged(juce::Slider* slider) override;
-
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    NMAudioProcessor& audioProcessor;
+    PhatBassAudioProcessor& audioProcessor;
 
-    juce::ToggleButton enableFeatureButton;
     juce::Slider gainSlider;
-    juce::Label gainLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NMAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatBassAudioProcessorEditor)
 };
