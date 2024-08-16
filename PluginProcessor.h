@@ -13,12 +13,12 @@
 //==============================================================================
 /**
 */
-class NMAudioProcessor  : public juce::AudioProcessor
+class PhatBassAudioProcessor  : public juce::AudioProcessor
 {
 public:
     //==============================================================================
-    NMAudioProcessor();
-    ~NMAudioProcessor() override;
+    PhatBassAudioProcessor();
+    ~PhatBassAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -53,20 +53,37 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::AudioParameterFloat* gainParameter;
+    juce::AudioProcessorValueTreeState parameters;
 
 private:
-    juce::dsp::Gain<float> outputGain;
-    juce::dsp::Compressor<float> limiter;
-    float dBToLinear(float dB);
+    // Limiter parameters
+    float attackTime = 0.11f;
+    float releaseTime = 0.5f;
+    float sustainLevel = 0.28f;
 
-    float attackTimeMs = 11.0f;   // Attack time in milliseconds
-    float releaseTimeMs = 50.0f;  // Release time in milliseconds
-    float sustainLevel = 0.29f;   // Sustain level as a percentage (interpreted as 29% gain reduction)
+    float sampleRate = 44100.0;
 
-    void applyLimiter(juce::AudioBuffer<float>& buffer);
-    void applyGainToBuffer(juce::AudioBuffer<float>& buffer);
+    float envelope = 0.0f;
+    float gainReduction = 1.0f;
 
+    float gainInDecibels = 0.0f;
+
+    float calculateEnvelope(float input);
+    float attack(float input);
+    float release(float input);
+    float applySustain(float input);
+    float calculateGainReduction(float envelope);
+    float processSample(float inputSample);
+    float applyGain(float inputSample);
+
+    juce::dsp::LinkwitzRileyFilter<float> lowPassFilter;
+    juce::dsp::LinkwitzRileyFilter<float> highPassFilter;
+
+    juce::dsp::Compressor<float> lowBandCompressor;
+    juce::dsp::Compressor<float> midBandCompressor;
+    juce::dsp::Compressor<float> highBandCompressor;
+
+    juce::AudioBuffer<float> lowBuffer, midBuffer, highBuffer;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NMAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PhatBassAudioProcessor)
 };
