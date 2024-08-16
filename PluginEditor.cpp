@@ -10,43 +10,25 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-NMAudioProcessorEditor::NMAudioProcessorEditor (NMAudioProcessor& p)
+PhatBassAudioProcessorEditor::PhatBassAudioProcessorEditor (PhatBassAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    enableFeatureButton.setButtonText("Bypass");
-    enableFeatureButton.setToggleState(false, juce::dontSendNotification);
-
-    // Add the ToggleButton to the editor
-    addAndMakeVisible(enableFeatureButton);
-
-    // Handle button click
-    enableFeatureButton.onClick = [this]()
-    {
-        if (enableFeatureButton.getToggleState())
-            DBG("Feature Enabled");
-        else
-            DBG("Feature Disabled");
-    };
-
-    gainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-    gainSlider.setRange(-12.0, 12.0, 0.01);
-    gainSlider.setValue(0.0);
-    gainSlider.addListener(this);
+    gainSlider.setSliderStyle(juce::Slider::Rotary);
+    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     addAndMakeVisible(gainSlider);
 
-    gainLabel.setText("Gain", juce::dontSendNotification);
-    gainLabel.attachToComponent(&gainSlider, true);
-    addAndMakeVisible(gainLabel);
+    gainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+        audioProcessor.parameters, "gain", gainSlider);
 
-    setSize (500, 450);
+    setSize (400, 300);
 }
 
-NMAudioProcessorEditor::~NMAudioProcessorEditor()
+PhatBassAudioProcessorEditor::~PhatBassAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void NMAudioProcessorEditor::paint (juce::Graphics& g)
+void PhatBassAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
@@ -56,16 +38,7 @@ void NMAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
-void NMAudioProcessorEditor::resized()
+void PhatBassAudioProcessorEditor::resized()
 {
-    enableFeatureButton.setBounds(20, 20, 150, 30);
-    gainSlider.setBounds(40, 60, getWidth() - 80, 20);
-}
-
-void NMAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
-{
-    if (slider == &gainSlider)
-    {
-        audioProcessor.gainParameter->setValueNotifyingHost((float)slider->getValue());
-    }
+    gainSlider.setBounds(getLocalBounds().reduced(50));
 }
